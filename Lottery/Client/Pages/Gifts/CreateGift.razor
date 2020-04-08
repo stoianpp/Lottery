@@ -1,0 +1,26 @@
+﻿@page "/gift/create"
+@inject IGiftRepository giftRepository
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Create Gift</h3>
+
+<GiftForm Gift="Gift" OnValidSubmit="Create" />
+
+@code {
+    Gift Gift = new Gift();
+
+    private async Task Create()
+    {
+        try
+        {
+
+            await giftRepository.CreateGift(Gift);
+            navigationManager.NavigateTo("gifts");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

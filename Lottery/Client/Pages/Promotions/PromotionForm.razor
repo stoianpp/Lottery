@@ -1,0 +1,63 @@
+﻿@inject IPromotionRepository promotionRepository
+@inject IGiftRepository giftRepository
+
+    <EditForm Model="Promotion" OnValidSubmit="OnDataAnnotationsValidated">
+        <DataAnnotationsValidator />
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Promotion.Name" />
+                <ValidationMessage For="@(() => Promotion.Name)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Active</label>
+            <div>
+                <InputCheckbox @bind-Value="Promotion.Active" />
+                <ValidationMessage For="@(() => Promotion.Active)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Promotion.Description" />
+                <ValidationMessage For="@(() => Promotion.Description)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Gifts selection:</label>
+            <div>
+                <MultipleSelectorImages Selected="Selected" NoSelected="NotSelected"></MultipleSelectorImages>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+
+    </EditForm>
+
+@code {
+    [Parameter] public Promotion Promotion { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    [Parameter] public List<Gift> SelectedGifts { get; set; } = new List<Gift>();
+    [Parameter] public List<Gift> NotSelectedGifts { get; set; } = new List<Gift>();
+
+    private List<MultipleSelectorModel> Selected = new List<MultipleSelectorModel>();
+    private List<MultipleSelectorModel> NotSelected = new List<MultipleSelectorModel>();
+
+    protected override void OnInitialized()
+    {
+        Selected = SelectedGifts.Select(x => new MultipleSelectorModel(x.Id.ToString(), x.Name)).ToList();
+        NotSelected = NotSelectedGifts.Select(x => new MultipleSelectorModel(x.Id.ToString(), x.Name)).ToList();
+    }
+
+    private async Task OnDataAnnotationsValidated()
+    {
+       Promotion.GiftsPromotions = Selected
+            .Select(x => new GiftsPromotions { GiftId = int.Parse(x.Key)}).ToList();
+        await OnValidSubmit.InvokeAsync(null);
+    }
+}

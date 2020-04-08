@@ -1,0 +1,74 @@
+﻿@page "/gifts"
+@inject IGiftRepository giftRepository
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Index Gifts</h3>
+
+<div class="form-group">
+    <a class="btn btn-info" href="gift/create">New Gift</a>
+</div>
+
+<Pagination CurrentPage="@paginationDTO.Page" TotalAmountPages="totalAmountPages"
+            SelectedPage="SelectedPage" />
+
+<GenericList List="Gifts">
+    <WholeListTemplate>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Gifts)
+                {
+                    <tr>
+                        <td>
+                            <a class="btn btn-success btn-width" href="/gift/edit/@item.Id">Edit</a>
+                            <button class="btn btn-danger btn-width" @onclick="@(() => DeleteGift(item.Id))">Delete</button>
+                        </td>
+                        <td>@item.Name</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </WholeListTemplate>
+</GenericList>
+
+@code {
+    List<Gift> Gifts;
+    PaginationDTO paginationDTO = new PaginationDTO() { RecordsPerPage = 10 };
+    private int totalAmountPages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadGifts();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    private async Task LoadGifts()
+    {
+        var paginatedResponse = await giftRepository.GetGifts(paginationDTO);
+        Gifts = paginatedResponse.Response;
+        totalAmountPages = paginatedResponse.TotalAmountPages;
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        paginationDTO.Page = page;
+        await LoadGifts();
+    }
+
+    private async Task DeleteGift(int id)
+    {
+        await giftRepository.DeleteGift(id);
+        await LoadGifts();
+    }
+}

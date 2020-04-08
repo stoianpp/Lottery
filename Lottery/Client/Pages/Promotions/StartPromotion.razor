@@ -1,0 +1,152 @@
+﻿@page "/promotion/start/{PromotionId:int}"
+@using System.Timers
+@inject IPromotionRepository promotionRepository
+@inject NavigationManager navigationManager
+@attribute [Authorize]
+
+@if (Promotion != null)
+{
+    <div style="display:@execute">
+        <h3>Start Lottery</h3>
+        <hr />
+        <br />
+        <h4>Enter number of gifts and hit "START"</h4>
+
+        <GenericList List="SelectedGifts">
+            <WholeListTemplate>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Picture</th>
+                            <th>Number</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in SelectedGifts)
+                        {
+                            <tr>
+                                <td><img src="@item.Picture" alt="Gift" class="thumbnail" /></td>
+                                <td><input type="number" min="0" max="1000"class="form-control" @bind="@SelectedGiftsNumber[@item.Id]" /></td>
+                                <td>@item.Name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </WholeListTemplate>
+        </GenericList>
+
+        <div class="form-group">
+            <a class="btn btn-info" @onclick="@(() => Execute())">START</a>
+        </div>
+
+    </div>
+
+    <div style="display:@stop" width="100%">
+        <h3  style="color: @titleColor; display: inline">@title</h3>
+        <a class="btn btn-light float-right" @onclick="@(() => Stop())">QUIT</a>
+        <hr />
+        <br />
+        <div style="display: flex; justify-content: center; margin-bottom: 20px">
+            <img style="width: 80%" src="@currentGift.Picture" class="image" @onclick="@(() => Pause())" />
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int PromotionId { get; set; }
+
+    private Promotion Promotion;
+    private List<Gift> SelectedGifts;
+    private Dictionary<int, int> SelectedGiftsNumber;
+    private string stop;
+    private string execute;
+    private int counter;
+    private Gift currentGift;
+    private List<int> totalDraws;
+    private bool isRolling;
+    private string title;
+    private string titleColor;
+    Timer timer;
+    Random random;
+
+    protected async override Task OnInitializedAsync()
+    {
+        var model = await promotionRepository.GetPromotionForUpdate(PromotionId);
+        title = "PRESS THE IMAGE TO DRAW!";
+        titleColor = "black";
+        Promotion = model.Promotion;
+        SelectedGifts = model.SelectedGifts;
+        SelectedGiftsNumber = new Dictionary<int, int>();
+        totalDraws = new List<int>();
+        currentGift = SelectedGifts[0];
+
+        random = new Random();
+
+        stop = "none";
+        execute = "block";
+
+        counter = 0;
+
+        foreach (var item in SelectedGifts)
+        {
+            SelectedGiftsNumber.Add(item.Id, 1);
+        }
+
+        timer = new Timer();
+        timer.Interval = 30;
+        timer.Elapsed += TimerOnElapsed;
+    }
+
+    private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+    {
+        counter = random.Next(0,totalDraws.Count);
+        currentGift = SelectedGifts.FirstOrDefault(x => x.Id == totalDraws[counter]);
+        StateHasChanged();
+    }
+
+    private void Execute()
+    {
+        totalDraws.Clear();
+        counter = 0;
+        isRolling = true;
+
+        foreach (var item in SelectedGiftsNumber)
+        {
+            var arr = new int[item.Value];
+            Array.Fill(arr,item.Key);
+            totalDraws.AddRange(arr);
+        }
+
+        execute = "none";
+        stop = "block";
+        timer.Start();
+    }
+
+    private void Stop()
+    {
+        stop = "none";
+        execute = "block";
+        timer.Stop();
+        title = "PRESS THE IMAGE TO DRAW!";
+        titleColor = "black";
+    }
+
+    private void Pause()
+    {
+        if (isRolling)
+        {
+            timer.Stop();
+            isRolling = !isRolling;
+            title = "YOU WON: " + currentGift.Name;
+            titleColor = "green";
+        }
+        else
+        {
+            timer.Start();
+            isRolling = !isRolling;
+            title = "PRESS THE IMAGE TO DRAW!";
+            titleColor = "black";
+        }
+    }
+}

@@ -1,0 +1,13 @@
+﻿<AuthorizeView>
+    <Authorized>
+        <span>Hello, @context.User.Identity.Name!</span>
+        <a href="Logout" class="nav-link btn btn-link">Log out</a>
+        @*@if (context.User.HasClaim(x => x.Value == "Admin"))
+        {
+            <a href="Register">Register</a>
+        }*@
+    </Authorized>
+    <NotAuthorized>
+        <a href="Login" class="nav-link btn btn-link">Login</a>
+    </NotAuthorized>
+</AuthorizeView>

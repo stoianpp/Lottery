@@ -1,0 +1,36 @@
+﻿@page "/promotion/create"
+@inject IPromotionRepository promotionRepository
+@inject IGiftRepository giftRepository
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Create Promotion</h3>
+
+@if (NotSelectedGifts != null)
+{
+    <PromotionForm Promotion="Promotion" OnValidSubmit="Create" NotSelectedGifts="NotSelectedGifts" />
+}
+
+@code {
+    Promotion Promotion = new Promotion();
+    private List<Gift> NotSelectedGifts;
+
+    protected async override Task OnInitializedAsync()
+    {
+        NotSelectedGifts = await giftRepository.GetAll();
+    }
+
+    private async Task Create()
+    {
+        try
+        {
+
+            await promotionRepository.CreatePromotion(Promotion);
+            navigationManager.NavigateTo("promotions");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+}

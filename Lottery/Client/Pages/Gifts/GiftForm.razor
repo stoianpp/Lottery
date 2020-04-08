@@ -1,0 +1,50 @@
+﻿
+<EditForm Model="Gift" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Gift.Name" />
+            <ValidationMessage For="@(() => Gift.Name)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <div>
+            <InputText class="form-control" @bind-Value="@Gift.Description" />
+            <ValidationMessage For="@(() => Gift.Description)" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <InputImg Label="Picture" OnSelectedImage="PictureSelected" ImageURL="@imageURL" />
+        <ValidationMessage For="@(() => Gift.Picture)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+</EditForm>
+
+@code {
+    [Parameter] public Gift Gift { get; set; }
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    string imageURL;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(Gift.Picture))
+        {
+            imageURL = Gift.Picture;
+            Gift.Picture = null;
+        }
+    }
+
+    private void PictureSelected(string imageBase64)
+    {
+       Gift.Picture = imageBase64;
+       imageURL = null;
+       Console.WriteLine(imageBase64);
+    }
+}

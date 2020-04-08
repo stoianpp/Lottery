@@ -1,0 +1,77 @@
+﻿@page "/promotions"
+@inject IPromotionRepository promotionRepository
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Index Promotions</h3>
+
+<div class="form-group">
+    <a class="btn btn-info" href="promotion/create">New Promotion</a>
+</div>
+
+<Pagination CurrentPage="@paginationDTO.Page" TotalAmountPages="totalAmountPages"
+            SelectedPage="SelectedPage" />
+
+<GenericList List="Promotions">
+    <WholeListTemplate>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Promotions)
+                {
+                <tr>
+                    <td>
+                        <a class="btn btn-success btn-width" href="/promotion/edit/@item.Id">Edit</a>
+                        <button class="btn btn-danger btn-width" @onclick="@(() => DeletePromotion(item.Id))">Delete</button>
+                    </td>
+                    <td>@item.Name</td>
+                    <td><img width="30" src=@(item.Active +".png") /></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </WholeListTemplate>
+</GenericList>
+
+@code {
+    List<Promotion> Promotions;
+    PaginationDTO paginationDTO = new PaginationDTO() { RecordsPerPage = 10 };
+    private int totalAmountPages;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await LoadPromotions();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    private async Task LoadPromotions()
+    {
+        var paginatedResponse = await promotionRepository.GetPromotions(paginationDTO);
+        Promotions = paginatedResponse.Response;
+        totalAmountPages = paginatedResponse.TotalAmountPages;
+
+    }
+
+    private async Task SelectedPage(int page)
+    {
+        paginationDTO.Page = page;
+        await LoadPromotions();
+    }
+
+    private async Task DeletePromotion(int id)
+    {
+        await promotionRepository.DeletePromotion(id);
+        await LoadPromotions();
+    }
+}

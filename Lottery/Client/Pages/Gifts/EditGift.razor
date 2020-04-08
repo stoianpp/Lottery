@@ -1,0 +1,28 @@
+﻿@page "/gift/edit/{GiftId:int}"
+@inject IGiftRepository giftRepository
+@inject NavigationManager navigationManager
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Edit Gift</h3>
+
+@if (Gift != null)
+{
+    <GiftForm Gift="Gift" OnValidSubmit="Edit" />
+}
+
+@code {
+    [Parameter] public int GiftId { get; set; }
+
+    Gift Gift;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Gift = await giftRepository.GetGiftById(GiftId);
+    }
+
+    private async Task Edit()
+    {
+        await giftRepository.UpdateGift(Gift);
+        navigationManager.NavigateTo("gifts");
+    }
+}
