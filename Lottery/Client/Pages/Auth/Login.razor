@@ -3,6 +3,7 @@
 @inject IAccountsRepository accountsRepository
 @inject NavigationManager navigationManager
 @inject ILoginService loginService
+@inject IDisplayMessage displayMessage
 
 @using Lottery.Client.Auth
 
@@ -36,8 +37,15 @@
 
     private async Task CreateUser()
     {
-        var userToken = await accountsRepository.Login(userInfo);
-        await loginService.Login(userToken.Token);
-        navigationManager.NavigateTo("");
+        try
+        {
+            var userToken = await accountsRepository.Login(userInfo);
+            await loginService.Login(userToken.Token);
+            navigationManager.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            await displayMessage.DisplayErrorMessage($"{ex.Message}");
+        }
     }
 }
