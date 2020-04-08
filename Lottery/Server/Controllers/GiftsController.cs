@@ -86,8 +86,7 @@ namespace Lottery.Server.Controllers
 
             if (giftDB == null) { return NotFound(); }
 
-            giftDB.Name = gift.Name;
-            giftDB.Description = gift.Description;
+            giftDB = mapper.Map(gift, giftDB);
 
             if (!string.IsNullOrWhiteSpace(gift.Picture))
             {

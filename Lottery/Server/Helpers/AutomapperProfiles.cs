@@ -11,8 +11,8 @@ namespace Lottery.Server.Helpers
     {
         public AutomapperProfiles()
         {
-           // CreateMap<Gift, Gift>()
-           //     .ForMember(x => x.Picture, option => option.Ignore());
+           CreateMap<Gift, Gift>()
+            .ForMember(x => x.Picture, option => option.Ignore());
         }
     }
 }
