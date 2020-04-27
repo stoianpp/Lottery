@@ -39,6 +39,7 @@ namespace Lottery.Server.Controllers
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
+                await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "EndUser"));
                 return await BuildToken(model);
             }
             else

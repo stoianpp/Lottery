@@ -6,14 +6,28 @@
     <Authorized>
         <Lottery.Client.Pages.Promotions.IndexPromotions></Lottery.Client.Pages.Promotions.IndexPromotions>
     </Authorized>
-    <NotAuthorized>
-        <Lottery.Client.Pages.Promotions.IndexEndUserPromotions></Lottery.Client.Pages.Promotions.IndexEndUserPromotions>
-    </NotAuthorized>
     <Authorizing>
         <div>
             <h3>Loading</h3>
         </div>
     </Authorizing>
+</AuthorizeView>
+
+<AuthorizeView Roles="EndUser">
+    <Authorized>
+        <Lottery.Client.Pages.Promotions.IndexEndUserPromotions></Lottery.Client.Pages.Promotions.IndexEndUserPromotions>
+    </Authorized>
+    <Authorizing>
+        <div>
+            <h3>Loading</h3>
+        </div>
+    </Authorizing>
+</AuthorizeView>
+
+<AuthorizeView>
+    <NotAuthorized>
+        <h3>Please login!</h3>
+    </NotAuthorized>
 </AuthorizeView>
 
         @*

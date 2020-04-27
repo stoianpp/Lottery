@@ -109,7 +109,10 @@ namespace Lottery.Server.Controllers
                 return NotFound();
             }
 
+            var giftpromotions = context.GiftsPromotions.Where(x => x.GiftId == id);
+            context.RemoveRange(giftpromotions);
             context.Remove(gift);
+            
             await context.SaveChangesAsync();
             return NoContent();
         }
